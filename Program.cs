@@ -18,7 +18,7 @@ namespace SuperHero240327
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-            builder.Services.AddDbContext<SuperHeroContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServer")));
+            //builder.Services.AddDbContext<SuperHeroContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServer")));
 
             var app = builder.Build();
 
