@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-
+﻿
 namespace SuperHero240327.Models;
 
-public partial class Character
+public sealed class Character
 {
     public long ID { get; set; }
 
