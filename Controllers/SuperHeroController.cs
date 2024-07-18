@@ -1,8 +1,7 @@
-﻿using Dapper;
+﻿
+using Dapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
-using Microsoft.IdentityModel.Tokens;
-
 
 //using Microsoft.EntityFrameworkCore;
 using SuperHero240327.Models;
@@ -41,15 +40,16 @@ namespace SuperHeroAPI.Controllers
         {
             //return Ok(await _context.Character.ToListAsync());
 
+            string querySql = @"
+                                SELECT  [ID], [Name], [FirstName], [LastName], [Place] 
+                                FROM    [Character] 
+                                                    ";
+
             using IDbConnection dbConnection = new SqlConnection(connectionString);
             dbConnection.Open();
 
-            string sqlCmd = "SELECT ID, Name, FirstName, LastName, Place FROM Character WHERE 1 = 1";
-            var dynParams = new DynamicParameters();
-
-            return Ok(dbConnection.Query<Character>(sqlCmd, dynParams));
+            return Ok(await dbConnection.QueryAsync<Character>(querySql));
         }
-
 
         [HttpPost]
         public async Task<ActionResult<List<Character>>> CreateSuperHero(Character hero)
@@ -59,43 +59,27 @@ namespace SuperHeroAPI.Controllers
 
             //return Ok(await _context.Character.ToListAsync());
 
-            using IDbConnection dbConnection = new SqlConnection(connectionString);
-            dbConnection.Open();
-
-            string sqlCmd = "";
-            string calTitle = "";
-            string valMsg = "";
-            var dynParams = new DynamicParameters();
-
             if (hero != null)
             {
-                if (hero.FirstName.IsNullOrEmpty() == false)
+                string insertSql = @"
+                                INSERT INTO 
+                                [Character] ([Name], [FirstName], [LastName], [Place], [CreateTime])
+                                VALUES       (@Name, @FirstName, @LastName, @Place, @CreateTime)
+                                            ";
+
+                var parameters = new Character()
                 {
-                    calTitle = $"{calTitle}FirstName, ";
-                    valMsg = $"{valMsg}@FirstName, ";
-                    dynParams.Add("@FirstName", hero.FirstName, DbType.String, ParameterDirection.Input, hero.FirstName.Length);
-                }
+                    Name = hero.Name,
+                    FirstName = hero.FirstName,
+                    LastName = hero.LastName,
+                    Place = hero.Place,
+                    CreateTime = DateTime.Now
+                };
 
-                if (hero.LastName.IsNullOrEmpty() == false)
-                {
-                    calTitle = $"{calTitle}LastName, ";
-                    valMsg = $"{valMsg}@LastName, ";
-                    dynParams.Add("@LastName", hero.LastName, DbType.String, ParameterDirection.Input, hero.LastName.Length);
-                }
+                using IDbConnection dbConnection = new SqlConnection(connectionString);
+                dbConnection.Open();
 
-                if (hero.Place.IsNullOrEmpty() == false)
-                {
-                    calTitle = $"{calTitle}Place, ";
-                    valMsg = $"{valMsg}@Place, ";
-                    dynParams.Add("@Place", hero.Place, DbType.String, ParameterDirection.Input, hero.Place.Length);
-                }
-
-                calTitle = $"{calTitle}Name)";
-                valMsg = $"{valMsg}@Name)";
-                dynParams.Add("@Name", hero.Name, DbType.String, ParameterDirection.Input, hero.Name.Length);
-
-                sqlCmd = $"INSERT INTO Character ({calTitle} VALUES ({valMsg}";
-                dbConnection.Query<Character>(sqlCmd, dynParams);
+                await dbConnection.ExecuteAsync(insertSql, parameters);
             }
 
             return Ok(GetSuperHeroes());
@@ -117,7 +101,55 @@ namespace SuperHeroAPI.Controllers
 
             //return Ok(await _context.Character.ToListAsync());
 
-            return Ok();
+            string querySql = @"
+                                SELECT  [ID], [Name], [FirstName], [LastName], [Place] 
+                                FROM    [Character] 
+                                WHERE  [ID] = @ID
+                                                    ";
+
+            using IDbConnection dbConnection = new SqlConnection(connectionString);
+            dbConnection.Open();
+
+            var parameters = await dbConnection.QueryFirstOrDefaultAsync<Character>(querySql, new { ID = hero.ID });
+
+            if (parameters != null)
+            {
+                string updateSql = @"
+                                UPDATE              [Character] 
+                                SET
+                                [Name]                  = @Name,
+                                [FirstName]         = @FirstName,
+                                [LastName]          = @LastName,
+                                [Place]                     = @Place, 
+                                [UpdateTime]    = @UpdateTime
+                                WHERE [ID]          = @ID
+                                            ";
+
+                if (string.IsNullOrWhiteSpace(hero.Name) == false)
+                {
+                    parameters.Name = hero.Name;
+                }
+
+                if (string.IsNullOrWhiteSpace(hero.FirstName) == false)
+                {
+                    parameters.FirstName = hero.FirstName;
+                }
+
+                if (string.IsNullOrWhiteSpace(hero.LastName) == false)
+                {
+                    parameters.LastName = hero.LastName;
+                }
+
+                if (string.IsNullOrWhiteSpace(hero.Place) == false)
+                {
+                    parameters.Place = hero.Place;
+                }
+
+                parameters.UpdateTime = DateTime.Now;
+                await dbConnection.ExecuteAsync(updateSql, parameters);
+            }
+
+            return Ok(GetSuperHeroes());
         }
 
         [HttpDelete("{id}")]
@@ -132,7 +164,16 @@ namespace SuperHeroAPI.Controllers
 
             //return Ok(await _context.Character.ToListAsync());
 
-            return Ok();
+            string deleteSql = @"
+                                    DELETE FROM [Character]
+                                    WHERE [ID] = @ID
+                                                             ";
+
+            using IDbConnection dbConnection = new SqlConnection(connectionString);
+            dbConnection.Open();
+
+            await dbConnection.ExecuteAsync(deleteSql, new { ID = id });
+            return Ok(GetSuperHeroes());
         }
     }
 }

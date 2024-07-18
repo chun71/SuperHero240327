@@ -7,11 +7,15 @@ public partial class Character
 {
     public long ID { get; set; }
 
-    public string Name { get; set; } = null!;
+    public string Name { get; set; }
 
-    public string FirstName { get; set; } = null!;
+    public string FirstName { get; set; }
 
-    public string LastName { get; set; } = null!;
+    public string LastName { get; set; }
 
-    public string Place { get; set; } = null!;
+    public string Place { get; set; }
+
+    public DateTime CreateTime { get; set; }
+
+    public DateTime UpdateTime { get; set; }
 }
