@@ -15,5 +15,5 @@ public sealed class Character
 
     public DateTime CreateTime { get; set; }
 
-    public DateTime UpdateTime { get; set; }
+    public DateTime? UpdateTime { get; set; }
 }

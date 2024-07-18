@@ -74,7 +74,7 @@ namespace SuperHeroAPI.Controllers
                                 VALUES       (@CharacterID, @Name, @FirstName, @LastName, @Place, @CreateTime, @Action, @LogTime)
                                             ";
 
-                var backupDate = new CharacterLog()
+                var backupData = new CharacterLog()
                 {
                     CharacterID = dbData.ID,
                     Name = dbData.Name,
@@ -86,7 +86,7 @@ namespace SuperHeroAPI.Controllers
                     LogTime = DateTime.Now
                 };
 
-                await dbConnection.ExecuteAsync(insertSql, backupDate);
+                await dbConnection.ExecuteAsync(insertSql, backupData);
             }
 
             return Ok(GetSuperHeroes());
@@ -148,7 +148,7 @@ namespace SuperHeroAPI.Controllers
                                 VALUES       (@CharacterID, @Name, @FirstName, @LastName, @Place, @CreateTime, @UpdateTime, @Action, @LogTime)
                                             ";
 
-                var backupDate = new CharacterLog()
+                var backupData = new CharacterLog()
                 {
                     CharacterID = parameters.ID,
                     Name = parameters.Name,
@@ -161,7 +161,7 @@ namespace SuperHeroAPI.Controllers
                     LogTime = DateTime.Now
                 };
 
-                await dbConnection.ExecuteAsync(insertSql, backupDate);
+                await dbConnection.ExecuteAsync(insertSql, backupData);
             }
 
             return Ok(GetSuperHeroes());
@@ -187,7 +187,7 @@ namespace SuperHeroAPI.Controllers
                                 VALUES       (@CharacterID, @Name, @FirstName, @LastName, @Place, @CreateTime, @UpdateTime, @Action, @LogTime)
                                             ";
 
-            var backupDate = new CharacterLog()
+            var backupData = new CharacterLog()
             {
                 CharacterID = parameters.ID,
                 Name = parameters.Name,
@@ -200,7 +200,7 @@ namespace SuperHeroAPI.Controllers
                 LogTime = DateTime.Now
             };
 
-            await dbConnection.ExecuteAsync(insertSql, backupDate);
+            await dbConnection.ExecuteAsync(insertSql, backupData);
 
             string deleteSql = @"
                                     DELETE FROM [Character]

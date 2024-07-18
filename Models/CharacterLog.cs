@@ -17,7 +17,7 @@ namespace SuperHero240327.Models
 
         public DateTime CreateTime { get; set; }
 
-        public DateTime UpdateTime { get; set; }
+        public DateTime? UpdateTime { get; set; }
 
         public string Action { get; set; }
 
