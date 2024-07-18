@@ -89,7 +89,7 @@ namespace SuperHeroAPI.Controllers
                 await dbConnection.ExecuteAsync(insertSql, backupData);
             }
 
-            return Ok(GetSuperHeroes());
+            return await GetSuperHeroes();
         }
 
         [HttpPut]
@@ -164,7 +164,7 @@ namespace SuperHeroAPI.Controllers
                 await dbConnection.ExecuteAsync(insertSql, backupData);
             }
 
-            return Ok(GetSuperHeroes());
+            return await GetSuperHeroes();
         }
 
         [HttpDelete("{id}")]
@@ -208,7 +208,7 @@ namespace SuperHeroAPI.Controllers
                                                              ";
 
             await dbConnection.ExecuteAsync(deleteSql, new { ID = id });
-            return Ok(GetSuperHeroes());
+            return await GetSuperHeroes();
         }
     }
 }
