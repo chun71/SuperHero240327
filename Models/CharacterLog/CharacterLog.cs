@@ -1,5 +1,5 @@
 ﻿
-namespace SuperHero240327.Models
+namespace SuperHero240327.Models.CharacterLog
 {
     public sealed class CharacterLog
     {
@@ -15,12 +15,8 @@ namespace SuperHero240327.Models
 
         public string Place { get; set; }
 
-        public DateTime CreateTime { get; set; }
-
-        public DateTime? UpdateTime { get; set; }
-
         public string Action { get; set; }
 
-        public DateTime LogTime { get; set; }
+        public DateTime CreateTime { get; set; }
     }
 }

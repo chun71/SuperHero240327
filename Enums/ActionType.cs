@@ -1,5 +1,5 @@
 ﻿
-namespace SuperHero240327.Enum
+namespace SuperHero240327.Enums
 {
     public sealed class ActionType
     {

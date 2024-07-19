@@ -1,7 +1,7 @@
 ﻿
-namespace SuperHero240327.Models;
+namespace SuperHero240327.Models.Character;
 
-public sealed class Character
+public sealed class CharacterView
 {
     public long ID { get; set; }
 
@@ -12,8 +12,4 @@ public sealed class Character
     public string LastName { get; set; }
 
     public string Place { get; set; }
-
-    public DateTime CreateTime { get; set; }
-
-    public DateTime? UpdateTime { get; set; }
 }

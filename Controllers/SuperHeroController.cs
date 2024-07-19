@@ -2,15 +2,16 @@
 using Dapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
-using SuperHero240327.Enum;
-using SuperHero240327.Models;
+using SuperHero240327.Enums;
+using SuperHero240327.Models.Character;
+using SuperHero240327.Models.CharacterLog;
 using System.Data;
 
 namespace SuperHeroAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class SuperHeroController : ControllerBase
+    public sealed class SuperHeroController : ControllerBase
     {
         private static readonly ConfigurationBuilder configBuilder = new ConfigurationBuilder();
 
@@ -21,22 +22,40 @@ namespace SuperHeroAPI.Controllers
 
         }
 
+
         [HttpGet]
-        public async Task<ActionResult<List<Character>>> GetSuperHeroes()
+        public async Task<ActionResult<List<CharacterView>>> GetSuperHeroes()
         {
             string querySql = @"
                                 SELECT  [ID], [Name], [FirstName], [LastName], [Place] 
                                 FROM    [Character] 
                                                     ";
 
-            using IDbConnection dbConnection = new SqlConnection(connectionString);
+            using IDbConnection dbConnection = new SqlConnection(this.connectionString);
             dbConnection.Open();
+            var characters = await dbConnection.QueryAsync<Character>(querySql);
+            var viewModel = new List<CharacterView>();
 
-            return Ok(await dbConnection.QueryAsync<Character>(querySql));
+            foreach (var character in characters)
+            {
+                var characterView = new CharacterView
+                {
+                    ID = character.ID,
+                    Name = character.Name,
+                    FirstName = character.FirstName,
+                    LastName = character.LastName,
+                    Place = character.Place
+                };
+
+                viewModel.Add(characterView);
+            }
+
+            return this.Ok(viewModel);
         }
 
+
         [HttpPost]
-        public async Task<ActionResult<List<Character>>> CreateSuperHero(Character hero)
+        public async Task<ActionResult<List<CharacterView>>> CreateSuperHero(CharacterView hero)
         {
             if (hero != null)
             {
@@ -55,7 +74,7 @@ namespace SuperHeroAPI.Controllers
                     CreateTime = DateTime.Now
                 };
 
-                using IDbConnection dbConnection = new SqlConnection(connectionString);
+                using IDbConnection dbConnection = new SqlConnection(this.connectionString);
                 dbConnection.Open();
 
                 await dbConnection.ExecuteAsync(insertSql, parameters);
@@ -67,33 +86,15 @@ namespace SuperHeroAPI.Controllers
                                                     ";
 
                 var dbData = await dbConnection.QueryFirstOrDefaultAsync<Character>(querySql, new { CreateTime = parameters.CreateTime });
-
-                insertSql = @"
-                                INSERT INTO 
-                                [CharacterLog] ([CharacterID], [Name], [FirstName], [LastName], [Place], [CreateTime], [Action], [LogTime]) 
-                                VALUES       (@CharacterID, @Name, @FirstName, @LastName, @Place, @CreateTime, @Action, @LogTime)
-                                            ";
-
-                var backupData = new CharacterLog()
-                {
-                    CharacterID = dbData.ID,
-                    Name = dbData.Name,
-                    FirstName = dbData.FirstName,
-                    LastName = dbData.LastName,
-                    Place = dbData.Place,
-                    CreateTime = dbData.CreateTime,
-                    Action = ActionType.Create,
-                    LogTime = DateTime.Now
-                };
-
-                await dbConnection.ExecuteAsync(insertSql, backupData);
+                await this.SaveLog(dbData, ActionType.Create);
             }
 
-            return await GetSuperHeroes();
+            return await this.GetSuperHeroes();
         }
 
+
         [HttpPut]
-        public async Task<ActionResult<List<Character>>> UpdateSuperHero(Character hero)
+        public async Task<ActionResult<List<CharacterView>>> UpdateSuperHero(CharacterView hero)
         {
             string querySql = @"
                                SELECT  [ID], [Name], [FirstName], [LastName], [Place], [CreateTime], [UpdateTime]
@@ -101,7 +102,7 @@ namespace SuperHeroAPI.Controllers
                                WHERE  [ID] = @ID
                                                     ";
 
-            using IDbConnection dbConnection = new SqlConnection(connectionString);
+            using IDbConnection dbConnection = new SqlConnection(this.connectionString);
             dbConnection.Open();
 
             var parameters = await dbConnection.QueryFirstOrDefaultAsync<Character>(querySql, new { ID = hero.ID });
@@ -142,33 +143,15 @@ namespace SuperHeroAPI.Controllers
                 parameters.UpdateTime = DateTime.Now;
                 await dbConnection.ExecuteAsync(updateSql, parameters);
 
-                string insertSql = @"
-                                INSERT INTO 
-                                [CharacterLog] ([CharacterID], [Name], [FirstName], [LastName], [Place], [CreateTime], [UpdateTime], [Action], [LogTime])
-                                VALUES       (@CharacterID, @Name, @FirstName, @LastName, @Place, @CreateTime, @UpdateTime, @Action, @LogTime)
-                                            ";
-
-                var backupData = new CharacterLog()
-                {
-                    CharacterID = parameters.ID,
-                    Name = parameters.Name,
-                    FirstName = parameters.FirstName,
-                    LastName = parameters.LastName,
-                    Place = parameters.Place,
-                    CreateTime = parameters.CreateTime,
-                    UpdateTime = parameters.UpdateTime,
-                    Action = ActionType.Update,
-                    LogTime = DateTime.Now
-                };
-
-                await dbConnection.ExecuteAsync(insertSql, backupData);
+                await this.SaveLog(parameters, ActionType.Update);
             }
 
-            return await GetSuperHeroes();
+            return await this.GetSuperHeroes();
         }
 
+
         [HttpDelete("{id}")]
-        public async Task<ActionResult<List<Character>>> DeleteSuperHero(long id)
+        public async Task<ActionResult<List<CharacterView>>> DeleteSuperHero(long id)
         {
             string querySql = @"
                                 SELECT  [ID], [Name], [FirstName], [LastName], [Place], [CreateTime], [UpdateTime]
@@ -176,15 +159,32 @@ namespace SuperHeroAPI.Controllers
                                 WHERE  [ID] = @ID
                                                     ";
 
-            using IDbConnection dbConnection = new SqlConnection(connectionString);
+            using IDbConnection dbConnection = new SqlConnection(this.connectionString);
             dbConnection.Open();
 
             var parameters = await dbConnection.QueryFirstOrDefaultAsync<Character>(querySql, new { ID = id });
 
-            string insertSql = @"
+            await this.SaveLog(parameters, ActionType.Delete);
+
+            string deleteSql = @"
+                                    DELETE FROM [Character]
+                                    WHERE [ID] = @ID
+                                                             ";
+
+            await dbConnection.ExecuteAsync(deleteSql, new { ID = id });
+            return await this.GetSuperHeroes();
+        }
+
+
+        private async Task SaveLog(Character parameters, string action)
+        {
+            using IDbConnection dbConnection = new SqlConnection(this.connectionString);
+            dbConnection.Open();
+
+            var insertSql = @"
                                 INSERT INTO 
-                                [CharacterLog] ([CharacterID], [Name], [FirstName], [LastName], [Place], [CreateTime], [UpdateTime], [Action], [LogTime])
-                                VALUES       (@CharacterID, @Name, @FirstName, @LastName, @Place, @CreateTime, @UpdateTime, @Action, @LogTime)
+                                [CharacterLog] ([CharacterID], [Name], [FirstName], [LastName], [Place], [Action], [CreateTime]) 
+                                VALUES       (@CharacterID, @Name, @FirstName, @LastName, @Place, @Action, @CreateTime)
                                             ";
 
             var backupData = new CharacterLog()
@@ -194,21 +194,23 @@ namespace SuperHeroAPI.Controllers
                 FirstName = parameters.FirstName,
                 LastName = parameters.LastName,
                 Place = parameters.Place,
-                CreateTime = parameters.CreateTime,
-                UpdateTime = parameters.UpdateTime,
-                Action = ActionType.Delete,
-                LogTime = DateTime.Now
+                Action = action
             };
 
+            if (action == ActionType.Create)
+            {
+                backupData.CreateTime = parameters.CreateTime;
+            }
+            else if (action == ActionType.Update)
+            {
+                backupData.CreateTime = parameters.UpdateTime.HasValue ? parameters.UpdateTime.Value : DateTime.Now;
+            }
+            else if (action == ActionType.Delete)
+            {
+                backupData.CreateTime = DateTime.Now;
+            }
+
             await dbConnection.ExecuteAsync(insertSql, backupData);
-
-            string deleteSql = @"
-                                    DELETE FROM [Character]
-                                    WHERE [ID] = @ID
-                                                             ";
-
-            await dbConnection.ExecuteAsync(deleteSql, new { ID = id });
-            return await GetSuperHeroes();
         }
     }
 }
