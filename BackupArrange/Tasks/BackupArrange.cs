@@ -42,12 +42,9 @@ namespace BackupArrange.Tasks
             if (month == 1)
             {
                 year = year - 1;
-                tableName = $"{tableName}_{year}";
             }
-            else
-            {
-                tableName = $"{tableName}_{year}";
-            }
+
+            tableName = $"{tableName}_{year}";
 
             string createTableSql = @$"
                         USE SuperHero
