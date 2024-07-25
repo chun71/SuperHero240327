@@ -1,6 +1,7 @@
 ﻿
 using Dapper;
 using Microsoft.Data.SqlClient;
+using SuperHero240327.Models.CharacterLog;
 using System.Data;
 using System.Globalization;
 
@@ -51,14 +52,13 @@ namespace BackupArrange.Tasks
                         IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = '{tableName}')
                         BEGIN
                             CREATE TABLE [{tableName}] (
-                                    [ID]                        BIGINT PRIMARY KEY IDENTITY,
                                     [CharacterID]       BIGINT NOT NULL,
 		                            [Name]                  NVARCHAR(50) NOT NULL,
 		                            [FirstName]         NVARCHAR(50) NOT NULL,
 		                            [LastName]          NVARCHAR(50) NOT NULL, 
 		                            [Place]                     NVARCHAR(50),
 		                            [Action]                NVARCHAR(5) NOT NULL,
-		                            [CreateTime]        DATETIME NOT NULL
+		                            [CreateTime]        DATETIME PRIMARY KEY
                             );
                         END
                             ";
@@ -72,9 +72,36 @@ namespace BackupArrange.Tasks
 
             await dbConnection.ExecuteAsync(createTableSql);
 
+            string querySql = @"
+                               SELECT   [CharacterID], [Name], [FirstName], [LastName], [Place], [Action], [CreateTime]
+                               FROM     [CharacterLog]
+                                        ";
 
+            var characterLogs = await dbConnection.QueryAsync<CharacterLog>(querySql);
 
+            string deleteSql = @$"
+                                DELETE FROM [{tableName}]
+                                    ";
 
+            await dbConnection.ExecuteAsync(deleteSql);
+
+            string insertSql = @$"
+                                INSERT INTO 
+                                [{tableName}] ([CharacterID], [Name], [FirstName], [LastName], [Place], [Action], [CreateTime]) 
+                                VALUES            (@CharacterID, @Name, @FirstName, @LastName, @Place, @Action, @CreateTime)
+                                            ";
+
+            await dbConnection.ExecuteAsync(insertSql, characterLogs);
+
+            if (month == 1)
+            {
+                deleteSql = @"
+                                DELETE FROM [CharacterLog]
+                                WHERE [CreateTime] <@MaxTime
+                                    ";
+
+                await dbConnection.ExecuteAsync(deleteSql, new { MaxTime  = maxTime});
+            }
         }
     }
 }

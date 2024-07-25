@@ -181,7 +181,7 @@ namespace SuperHeroAPI.Controllers
             using IDbConnection dbConnection = new SqlConnection(this.connectionString);
             dbConnection.Open();
 
-            var insertSql = @"
+            string insertSql = @"
                                 INSERT INTO 
                                 [CharacterLog] ([CharacterID], [Name], [FirstName], [LastName], [Place], [Action], [CreateTime]) 
                                 VALUES       (@CharacterID, @Name, @FirstName, @LastName, @Place, @Action, @CreateTime)

@@ -14,6 +14,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\SuperHero\SuperHero240327.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="sqlconnectionString.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
