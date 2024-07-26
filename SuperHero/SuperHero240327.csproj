@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
@@ -8,8 +8,18 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="Enums\**" />
+	  <Compile Remove="Models\**" />
+	  <Content Remove="Enums\**" />
+	  <Content Remove="Models\**" />
+	  <EmbeddedResource Remove="Enums\**" />
+	  <EmbeddedResource Remove="Models\**" />
+	  <None Remove="Enums\**" />
+	  <None Remove="Models\**" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <Compile Remove="Controllers\WeatherForecastController.cs" />
-	  <Compile Remove="Models\SuperHeroContext.cs" />
 	  <Compile Remove="WeatherForecast.cs" />
 	</ItemGroup>
 
@@ -22,6 +32,11 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Enums\Enums.csproj" />
+    <ProjectReference Include="..\Models\Models.csproj" />
   </ItemGroup>
 
 </Project>

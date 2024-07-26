@@ -1,0 +1,1 @@
+﻿Data Source=localhost;Database=SuperHero;User ID=Hero;Password=Hero@20240327;TrustServerCertificate=true

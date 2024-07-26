@@ -1,9 +1,11 @@
 ﻿
 using Dapper;
 using Microsoft.Data.SqlClient;
-using SuperHero240327.Models.CharacterLog;
+using Models.CharacterLog;
 using System.Data;
 using System.Globalization;
+using Services;
+using Repositories;
 
 namespace BackupArrange.Tasks
 {
@@ -19,13 +21,17 @@ namespace BackupArrange.Tasks
         {
             get
             {
-                return new BackupArrange();
+                return new BackupArrange(new CommonService(new Repository()));
             }
         }
 
-        private BackupArrange()
-        {
+        private readonly CommonService commonService;
 
+        private BackupArrange(
+            CommonService commonService
+            )
+        {
+            this.commonService = commonService;
         }
 
         /// <summary>
@@ -47,30 +53,16 @@ namespace BackupArrange.Tasks
 
             tableName = $"{tableName}_{year}";
 
-            string createTableSql = @$"
-                        USE SuperHero
-                        IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = '{tableName}')
-                        BEGIN
-                            CREATE TABLE [{tableName}] (
-                                    [CharacterID]       BIGINT NOT NULL,
-		                            [Name]                  NVARCHAR(50) NOT NULL,
-		                            [FirstName]         NVARCHAR(50) NOT NULL,
-		                            [LastName]          NVARCHAR(50) NOT NULL, 
-		                            [Place]                     NVARCHAR(50),
-		                            [Action]                NVARCHAR(5) NOT NULL,
-		                            [CreateTime]        DATETIME PRIMARY KEY
-                            );
-                        END
-                            ";
-
+            // 5行 待刪除 {
             string baseDir = AppDomain.CurrentDomain.BaseDirectory;
             string filePath = Path.Combine(baseDir, "sqlconnectionString.txt");
             string connectionString = File.ReadAllText(filePath);
 
             using IDbConnection dbConnection = new SqlConnection(connectionString);
             dbConnection.Open();
+            // }
 
-            await dbConnection.ExecuteAsync(createTableSql);
+            await this.commonService.CreateTable(tableName);
 
             string querySql = @"
                                SELECT   [CharacterID], [Name], [FirstName], [LastName], [Place], [Action], [CreateTime]
@@ -100,7 +92,7 @@ namespace BackupArrange.Tasks
                                 WHERE [CreateTime] <@MaxTime
                                     ";
 
-                await dbConnection.ExecuteAsync(deleteSql, new { MaxTime  = maxTime});
+                await dbConnection.ExecuteAsync(deleteSql, new { MaxTime = maxTime });
             }
         }
     }

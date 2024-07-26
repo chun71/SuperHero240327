@@ -1,5 +1,5 @@
 ﻿
-namespace SuperHero240327.Models.CharacterLog
+namespace Models.CharacterLog
 {
     public sealed class CharacterLog
     {

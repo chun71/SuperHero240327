@@ -1,5 +1,5 @@
 ﻿
-namespace SuperHero240327.Models.Character;
+namespace Models.Character;
 
 public sealed class CharacterView
 {

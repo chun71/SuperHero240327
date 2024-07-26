@@ -1,7 +1,4 @@
 
-using Microsoft.EntityFrameworkCore;
-using SuperHero240327.Models;
-
 namespace SuperHero240327
 {
     public class Program
