@@ -3,22 +3,10 @@ using Dapper;
 using Microsoft.Data.SqlClient;
 using System.Data;
 
-namespace Repositories
+namespace Repositories.Repositories
 {
-    public class Repository
+    public class CommonRepository : Repository
     {
-        public static string connectionString
-        {
-            get
-            {
-                string baseDir = AppDomain.CurrentDomain.BaseDirectory;
-                string filePath = Path.Combine(baseDir, "sqlconnectionString.txt");
-                string connectionString = File.ReadAllText(filePath);
-
-                return connectionString;
-            }
-        }
-
         public async Task CreateTable(string tableName)
         {
             string createTableSql = @$"

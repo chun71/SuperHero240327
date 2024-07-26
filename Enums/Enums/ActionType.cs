@@ -1,5 +1,4 @@
-﻿
-namespace Enums
+﻿namespace Enums.Enums
 {
     public sealed class ActionType
     {

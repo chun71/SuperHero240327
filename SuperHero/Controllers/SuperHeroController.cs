@@ -2,10 +2,10 @@
 using Dapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
-using Enums;
 using Models.Character;
 using Models.CharacterLog;
 using System.Data;
+using Enums.Enums;
 
 namespace SuperHeroAPI.Controllers
 {

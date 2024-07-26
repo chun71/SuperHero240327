@@ -1,11 +1,10 @@
 ﻿
 using Dapper;
 using Microsoft.Data.SqlClient;
-using Models.CharacterLog;
 using System.Data;
 using System.Globalization;
-using Services;
-using Repositories;
+using Repositories.Repositories;
+using Services.Services;
 
 namespace BackupArrange.Tasks
 {
@@ -21,17 +20,24 @@ namespace BackupArrange.Tasks
         {
             get
             {
-                return new BackupArrange(new CommonService(new Repository()));
+                return new BackupArrange(
+                    new CommonService(new CommonRepository()),
+                    new CharacterLogService(new CharacterLogRepository())
+                    );
             }
         }
 
         private readonly CommonService commonService;
 
+        private readonly CharacterLogService characterLogService;
+
         private BackupArrange(
-            CommonService commonService
+            CommonService commonService,
+            CharacterLogService characterLogService
             )
         {
             this.commonService = commonService;
+            this.characterLogService = characterLogService;
         }
 
         /// <summary>
@@ -64,12 +70,7 @@ namespace BackupArrange.Tasks
 
             await this.commonService.CreateTable(tableName);
 
-            string querySql = @"
-                               SELECT   [CharacterID], [Name], [FirstName], [LastName], [Place], [Action], [CreateTime]
-                               FROM     [CharacterLog]
-                                        ";
-
-            var characterLogs = await dbConnection.QueryAsync<CharacterLog>(querySql);
+            var characterLogs = await this.characterLogService.QueryAsync();
 
             string deleteSql = @$"
                                 DELETE FROM [{tableName}]
