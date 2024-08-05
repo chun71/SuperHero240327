@@ -1,4 +1,5 @@
 ﻿
+using Models.CharacterLog;
 using Repositories.Repositories;
 
 namespace Services.Services
@@ -13,9 +14,19 @@ namespace Services.Services
             this.commonRepository = commonRepository;
         }
 
-        public async Task CreateTable(string tableName)
+        public async Task CreateAsync(string tableName)
         {
-            await commonRepository.CreateTable(tableName);
+            await this.commonRepository.CreateAsync(tableName);
+        }
+
+        public async Task DeleteAsync(string tableName) 
+        {
+            await this.commonRepository.DeleteAsync(tableName);
+        }
+
+        public async Task InsertAsync(string tableName, List<CharacterLog> characterLogs) 
+        {
+            await this.commonRepository.InsertAsync(tableName, characterLogs);
         }
     }
 }

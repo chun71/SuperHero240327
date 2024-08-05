@@ -1,13 +1,14 @@
 ﻿
 using Dapper;
 using Microsoft.Data.SqlClient;
+using Models.CharacterLog;
 using System.Data;
 
 namespace Repositories.Repositories
 {
     public class CommonRepository : Repository
     {
-        public async Task CreateTable(string tableName)
+        public async Task CreateAsync(string tableName)
         {
             string createTableSql = @$"
                         USE [SuperHero]
@@ -29,6 +30,32 @@ namespace Repositories.Repositories
             dbConnection.Open();
 
             await dbConnection.ExecuteAsync(createTableSql);
+        }
+
+        public async Task DeleteAsync(string tableName)
+        {
+            string deleteSql = @$"
+                                DELETE FROM [{tableName}]
+                                             ";
+
+            using IDbConnection dbConnection = new SqlConnection(connectionString);
+            dbConnection.Open();
+
+            await dbConnection.ExecuteAsync(deleteSql);
+        }
+
+        public async Task InsertAsync(string tableName, List<CharacterLog> characterLogs) 
+        {
+            string insertSql = @$"
+                                INSERT INTO 
+                                [{tableName}] ([CharacterID], [Name], [FirstName], [LastName], [Place], [Action], [CreateTime]) 
+                                VALUES            (@CharacterID, @Name, @FirstName, @LastName, @Place, @Action, @CreateTime)
+                                            ";
+
+            using IDbConnection dbConnection = new SqlConnection(connectionString);
+            dbConnection.Open();
+
+            await dbConnection.ExecuteAsync(insertSql, characterLogs);
         }
     }
 }

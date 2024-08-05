@@ -17,7 +17,12 @@ namespace Services.Services
 
         public async Task<List<CharacterLog>> QueryAsync()
         {
-            return await characterLogRepository.QueryAsync();
+            return await this.characterLogRepository.QueryAsync();
+        }
+
+        public async Task DeleteAsync(DateTime maxTime) 
+        {
+            await this.characterLogRepository.DeleteAsync(maxTime);
         }
     }
 }

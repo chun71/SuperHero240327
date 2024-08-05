@@ -1,7 +1,4 @@
 ﻿
-using Dapper;
-using Microsoft.Data.SqlClient;
-using System.Data;
 using System.Globalization;
 using Repositories.Repositories;
 using Services.Services;
@@ -59,41 +56,17 @@ namespace BackupArrange.Tasks
 
             tableName = $"{tableName}_{year}";
 
-            // 5行 待刪除 {
-            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
-            string filePath = Path.Combine(baseDir, "sqlconnectionString.txt");
-            string connectionString = File.ReadAllText(filePath);
-
-            using IDbConnection dbConnection = new SqlConnection(connectionString);
-            dbConnection.Open();
-            // }
-
-            await this.commonService.CreateTable(tableName);
+            await this.commonService.CreateAsync(tableName);
 
             var characterLogs = await this.characterLogService.QueryAsync();
 
-            string deleteSql = @$"
-                                DELETE FROM [{tableName}]
-                                    ";
+            await this.commonService.DeleteAsync(tableName);
 
-            await dbConnection.ExecuteAsync(deleteSql);
-
-            string insertSql = @$"
-                                INSERT INTO 
-                                [{tableName}] ([CharacterID], [Name], [FirstName], [LastName], [Place], [Action], [CreateTime]) 
-                                VALUES            (@CharacterID, @Name, @FirstName, @LastName, @Place, @Action, @CreateTime)
-                                            ";
-
-            await dbConnection.ExecuteAsync(insertSql, characterLogs);
+            await this.commonService.InsertAsync(tableName, characterLogs);
 
             if (month == 1)
             {
-                deleteSql = @"
-                                DELETE FROM [CharacterLog]
-                                WHERE [CreateTime] <@MaxTime
-                                    ";
-
-                await dbConnection.ExecuteAsync(deleteSql, new { MaxTime = maxTime });
+                await this.characterLogService.DeleteAsync(maxTime);
             }
         }
     }

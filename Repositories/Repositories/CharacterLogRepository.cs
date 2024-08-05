@@ -22,5 +22,20 @@ namespace Repositories.Repositories
 
             return characterLogs.ToList();
         }
+
+        public async Task DeleteAsync(DateTime maxTime) 
+        {
+            string deleteSql = @"
+                                DELETE FROM [CharacterLog]
+                                WHERE [CreateTime] <@MaxTime
+                                    "
+                                            ;
+
+            using IDbConnection dbConnection = new SqlConnection(connectionString);
+            dbConnection.Open();
+
+            await dbConnection.ExecuteAsync(deleteSql, new { MaxTime = maxTime });
+        }
+
     }
 }
