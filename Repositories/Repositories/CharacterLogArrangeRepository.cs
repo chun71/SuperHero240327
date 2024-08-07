@@ -2,11 +2,12 @@
 using Dapper;
 using Microsoft.Data.SqlClient;
 using Models.CharacterLog;
+using Repositories.Repositories.IRepositories;
 using System.Data;
 
 namespace Repositories.Repositories
 {
-    public class CommonRepository : Repository
+    public class CharacterLogArrangeRepository : Repository, ICharacterLogArrangeRepository
     {
         public async Task CreateAsync(string tableName)
         {
@@ -44,7 +45,7 @@ namespace Repositories.Repositories
             await dbConnection.ExecuteAsync(deleteSql);
         }
 
-        public async Task InsertAsync(string tableName, List<CharacterLog> characterLogs) 
+        public async Task InsertAsync(string tableName,List<CharacterLog> characterLogs)
         {
             string insertSql = @$"
                                 INSERT INTO 

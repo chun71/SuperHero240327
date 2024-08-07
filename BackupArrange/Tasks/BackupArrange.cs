@@ -2,6 +2,7 @@
 using System.Globalization;
 using Repositories.Repositories;
 using Services.Services;
+using Services.Services.IServices;
 
 namespace BackupArrange.Tasks
 {
@@ -18,22 +19,22 @@ namespace BackupArrange.Tasks
             get
             {
                 return new BackupArrange(
-                    new CommonService(new CommonRepository()),
+                    new CharacterLogArrangeService(new CharacterLogArrangeRepository()),
                     new CharacterLogService(new CharacterLogRepository())
                     );
             }
         }
 
-        private readonly CommonService commonService;
+        private readonly ICharacterLogArrangeService characterLogArrangeService;
 
         private readonly CharacterLogService characterLogService;
 
         private BackupArrange(
-            CommonService commonService,
+            ICharacterLogArrangeService characterLogArrangeService,
             CharacterLogService characterLogService
             )
         {
-            this.commonService = commonService;
+            this.characterLogArrangeService = characterLogArrangeService;
             this.characterLogService = characterLogService;
         }
 
@@ -56,13 +57,13 @@ namespace BackupArrange.Tasks
 
             tableName = $"{tableName}_{year}";
 
-            await this.commonService.CreateAsync(tableName);
+            await this.characterLogArrangeService.CreateAsync(tableName);
 
             var characterLogs = await this.characterLogService.QueryAsync();
 
-            await this.commonService.DeleteAsync(tableName);
+            await this.characterLogArrangeService.DeleteAsync(tableName);
 
-            await this.commonService.InsertAsync(tableName, characterLogs);
+            await this.characterLogArrangeService.InsertAsync(tableName, characterLogs);
 
             if (month == 1)
             {
