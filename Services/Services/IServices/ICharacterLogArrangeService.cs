@@ -5,10 +5,12 @@ namespace Services.Services.IServices
 {
     public interface ICharacterLogArrangeService
     {
-        public Task CreateAsync(string tableName);
+        public void SetTableName(string tableName);
 
-        public Task DeleteAsync(string tableName);
+        public Task CreateAsync();
 
-        public Task InsertAsync(string tableName, List<CharacterLog> characterLogs);
+        public Task DeleteAsync();
+
+        public Task InsertAsync(List<CharacterLog> characterLogs);
     }
 }

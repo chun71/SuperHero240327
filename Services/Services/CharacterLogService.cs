@@ -1,15 +1,18 @@
 ﻿
 using Models.CharacterLog;
+
 using Repositories.Repositories;
+using Repositories.Repositories.IRepositories;
+using Services.Services.IServices;
 
 namespace Services.Services
 {
-    public class CharacterLogService
+    public class CharacterLogService : ICharacterLogService
     {
-        private readonly CharacterLogRepository characterLogRepository;
+        private readonly ICharacterLogRepository characterLogRepository;
 
         public CharacterLogService(
-            CharacterLogRepository characterLogRepository
+            ICharacterLogRepository characterLogRepository
             )
         {
             this.characterLogRepository = characterLogRepository;
@@ -20,7 +23,7 @@ namespace Services.Services
             return await this.characterLogRepository.QueryAsync();
         }
 
-        public async Task DeleteAsync(DateTime maxTime) 
+        public async Task DeleteAsync(DateTime maxTime)
         {
             await this.characterLogRepository.DeleteAsync(maxTime);
         }

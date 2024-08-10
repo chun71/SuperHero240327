@@ -9,25 +9,41 @@ namespace Services.Services
     {
         private readonly ICharacterLogArrangeRepository characterLogArrangeRepository;
 
+        private string tableName;
+
+        public void SetTableName(string tableName)
+        {
+            this.tableName = tableName;
+        }
+
         public CharacterLogArrangeService(
             ICharacterLogArrangeRepository characterLogArrangeRepository)
         {
             this.characterLogArrangeRepository = characterLogArrangeRepository;
         }
 
-        public async Task CreateAsync(string tableName)
+        public async Task CreateAsync()
         {
-            await this.characterLogArrangeRepository.CreateAsync(tableName);
+            if (string.IsNullOrWhiteSpace(this.tableName) == false)
+            {
+                await this.characterLogArrangeRepository.CreateAsync(this.tableName);
+            }
         }
 
-        public async Task DeleteAsync(string tableName) 
+        public async Task DeleteAsync()
         {
-            await this.characterLogArrangeRepository.DeleteAsync(tableName);
+            if (string.IsNullOrWhiteSpace(this.tableName) == false)
+            {
+                await this.characterLogArrangeRepository.DeleteAsync(this.tableName);
+            }
         }
 
-        public async Task InsertAsync(string tableName, List<CharacterLog> characterLogs) 
+        public async Task InsertAsync(List<CharacterLog> characterLogs)
         {
-            await this.characterLogArrangeRepository.InsertAsync(tableName, characterLogs);
+            if (string.IsNullOrWhiteSpace(this.tableName) == false)
+            {
+                await this.characterLogArrangeRepository.InsertAsync(this.tableName, characterLogs);
+            }
         }
     }
 }

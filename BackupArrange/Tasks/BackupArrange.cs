@@ -27,11 +27,11 @@ namespace BackupArrange.Tasks
 
         private readonly ICharacterLogArrangeService characterLogArrangeService;
 
-        private readonly CharacterLogService characterLogService;
+        private readonly ICharacterLogService characterLogService;
 
         private BackupArrange(
             ICharacterLogArrangeService characterLogArrangeService,
-            CharacterLogService characterLogService
+            ICharacterLogService characterLogService
             )
         {
             this.characterLogArrangeService = characterLogArrangeService;
@@ -57,13 +57,15 @@ namespace BackupArrange.Tasks
 
             tableName = $"{tableName}_{year}";
 
-            await this.characterLogArrangeService.CreateAsync(tableName);
+            this.characterLogArrangeService.SetTableName(tableName);
+
+            await this.characterLogArrangeService.CreateAsync();
 
             var characterLogs = await this.characterLogService.QueryAsync();
 
-            await this.characterLogArrangeService.DeleteAsync(tableName);
+            await this.characterLogArrangeService.DeleteAsync();
 
-            await this.characterLogArrangeService.InsertAsync(tableName, characterLogs);
+            await this.characterLogArrangeService.InsertAsync(characterLogs);
 
             if (month == 1)
             {

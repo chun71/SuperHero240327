@@ -2,11 +2,12 @@
 using Dapper;
 using Microsoft.Data.SqlClient;
 using Models.CharacterLog;
+using Repositories.Repositories.IRepositories;
 using System.Data;
 
 namespace Repositories.Repositories
 {
-    public class CharacterLogRepository : Repository
+    public class CharacterLogRepository : Repository, ICharacterLogRepository
     {
         public async Task<List<CharacterLog>> QueryAsync()
         {
@@ -23,7 +24,7 @@ namespace Repositories.Repositories
             return characterLogs.ToList();
         }
 
-        public async Task DeleteAsync(DateTime maxTime) 
+        public async Task DeleteAsync(DateTime maxTime)
         {
             string deleteSql = @"
                                 DELETE FROM [CharacterLog]
@@ -36,6 +37,5 @@ namespace Repositories.Repositories
 
             await dbConnection.ExecuteAsync(deleteSql, new { MaxTime = maxTime });
         }
-
     }
 }
