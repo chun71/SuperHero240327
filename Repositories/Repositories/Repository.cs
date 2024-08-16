@@ -8,7 +8,7 @@ namespace Repositories.Repositories
             get
             {
                 string baseDir = AppDomain.CurrentDomain.BaseDirectory;
-                string filePath = Path.Combine(baseDir, "sqlconnectionString.txt");
+                string filePath = Path.Combine(baseDir, "sqlconnectionString.info");
                 string connectionString = File.ReadAllText(filePath);
 
                 return connectionString;

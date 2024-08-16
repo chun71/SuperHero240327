@@ -9,6 +9,7 @@ namespace Repositories.Repositories
 {
     public class CharacterLogRepository : Repository, ICharacterLogRepository
     {
+
         public async Task<List<CharacterLog>> QueryAsync()
         {
             string querySql = @"
@@ -23,6 +24,21 @@ namespace Repositories.Repositories
 
             return characterLogs.ToList();
         }
+
+        public async Task CreateAsync(CharacterLog characterLog)
+        {
+            string insertSql = @"
+                                INSERT INTO 
+                                [CharacterLog] ([CharacterID], [Name], [FirstName], [LastName], [Place], [Action], [CreateTime]) 
+                                VALUES       (@CharacterID, @Name, @FirstName, @LastName, @Place, @Action, @CreateTime)
+                                            ";
+
+            using IDbConnection dbConnection = new SqlConnection(connectionString);
+            dbConnection.Open();
+
+            await dbConnection.ExecuteAsync(insertSql, characterLog);
+        }
+
 
         public async Task DeleteAsync(DateTime maxTime)
         {

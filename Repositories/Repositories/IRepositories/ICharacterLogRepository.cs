@@ -5,8 +5,10 @@ namespace Repositories.Repositories.IRepositories
 {
     public interface ICharacterLogRepository
     {
-        public  Task<List<CharacterLog>> QueryAsync();
+        public Task<List<CharacterLog>> QueryAsync();
 
-        public  Task DeleteAsync(DateTime maxTime);
+        public Task CreateAsync(CharacterLog characterLog);
+
+        public Task DeleteAsync(DateTime maxTime);
     }
 }

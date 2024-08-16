@@ -3,8 +3,6 @@ namespace Models.CharacterLog
 {
     public sealed class CharacterLog
     {
-        public long ID { get; set; }
-
         public long CharacterID { get; set; }
 
         public string Name { get; set; }
