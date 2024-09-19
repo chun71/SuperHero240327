@@ -1,4 +1,4 @@
-
+﻿
 namespace SuperHero240327
 {
     public class Program
@@ -18,6 +18,9 @@ namespace SuperHero240327
             //builder.Services.AddDbContext<SuperHeroContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServer")));
 
             var app = builder.Build();
+
+            // 跨域资源共享
+            app.UseCors(c => c.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod());
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
